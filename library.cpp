@@ -1,11 +1,12 @@
-#include <iostream>
-#include <iomanip>
-#include <vector>
-#include <fstream>
-#include <string>
-#include <sstream>
 #include <algorithm>
+#include <climits>
 #include <ctime>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
 
 using namespace std;
 
@@ -40,24 +41,33 @@ vector<Book> books;
 vector<Patron> patrons;
 vector<CheckOutRecord> checkOutRecords;
 
-void header() {
-    cout << setw(50);
-    cout << "WELCOME TO TELEWORKPH LIBRARY!" << endl;
-
-    cout << "\n\n\n\n\n\n";
-    cout << "Enter to continue. . .";
-    cin.ignore();
-}
-
 void clearScreen() {
     system("cls");
+}
+void header() {
+    string hdr = "WELCOME TO OUR LIBRARY MANAGEMENT SYSTEM!";
+    int consoleHeight = 27;
+    int verticalPadding = (consoleHeight - 5) / 2;
+    for (int i = 0; i < verticalPadding; ++i) {
+        cout << endl;
+    }
+
+    cout << setw(verticalPadding) << right << "\t\t\t\t*********************************************" << endl;
+    cout << setw(verticalPadding) << right << "\t\t\t\t*                                           *" << endl;
+    cout << setw(verticalPadding) << right << "\t\t\t\t* " << hdr << " *" << endl;
+    cout << setw(verticalPadding) << right << "\t\t\t\t*                                           *" << endl;
+    cout << setw(verticalPadding) << right << "\t\t\t\t*********************************************" << endl;
+    cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n";
+    cin.ignore();
+    clearScreen();
 }
 
 void errValidation() {
     while (!(cin >> inputChoice)) {
         cin.clear();
         cin.ignore(9999, '\n');
-        cout << "Invalid input. Please enter again: ";
+        cout << endl;
+        cout << "\tInvalid input. Please enter again: ";
     }
 }
 
@@ -70,14 +80,15 @@ string toLower(const string& str) {
 void loadBooksAndPatrons() {
     ifstream bookFile(bookPath);
     if (!bookFile.is_open()) {
-        cout << "Error opening book file." << endl;
+        cout << endl;
+        cout << "\tError opening book file." << endl;
         return;
     }
 
     string line;
     while (getline(bookFile, line)) {
         string id, title, author, publisher, availability;
-        stringstream iss(line); // Use stringstream instead of strstream
+        stringstream iss(line);  // Use stringstream instead of strstream
         getline(iss, id, token);
         if (id == "ID") {
             continue;
@@ -92,13 +103,14 @@ void loadBooksAndPatrons() {
 
     ifstream patronFile(patronPath);
     if (!patronFile.is_open()) {
-        cout << "Error opening patron file." << endl;
+        cout << endl;
+        cout << "\tError opening patron file." << endl;
         return;
     }
 
     while (getline(patronFile, line)) {
         string id, name, contactDetails;
-        stringstream iss(line); // Use stringstream instead of strstream
+        stringstream iss(line);  // Use stringstream instead of strstream
         getline(iss, id, token);
         if (id == "ID") {
             continue;
@@ -113,20 +125,23 @@ void loadBooksAndPatrons() {
 void saveBooksAndPatrons() {
     ofstream bookFile(bookPath);
     if (!bookFile.is_open()) {
-        cout << "Error opening book file for saving." << endl;
+        cout << endl;
+        cout << "\tError opening book file for saving." << endl;
         return;
     }
 
-    bookFile << "ID,TITLE,AUTHOR,PUBLISHER,STATUS" << endl;
+    cout << endl;
+    bookFile << "\tID  TITLE  AUTHOR  PUBLISHER  STATUS" << endl;
     for (const auto& book : books) {
-        bookFile << book.id << token << book.title << token << book.author << token
-                 << book.publisher << token << book.availability << endl;
+        bookFile << book.id << token << "  " << book.title << token << "  " << book.author << token
+                 << "  " << book.publisher << token << "  " << book.availability << endl;
     }
     bookFile.close();
 
     ofstream patronFile(patronPath);
     if (!patronFile.is_open()) {
-        cout << "Error opening patron file for saving." << endl;
+        cout << endl;
+        cout << "\tError opening patron file for saving." << endl;
         return;
     }
 
@@ -141,7 +156,8 @@ void addBook() {
     Book book;
     fstream fout;
     fout.open(bookPath, ios::out | ios::app);
-    cout << "Book Id: ";
+    cout << endl;
+    cout << "\tBook Id: ";
     cin >> book.id;
     ifstream file(bookPath);
     string line;
@@ -156,33 +172,35 @@ void addBook() {
         // Add a check to verify if id is a valid integer
         try {
             if (stoi(id) == book.id) {
-                cout << "Book with the same ID already exists. Please enter a unique ID." << endl;
+                cout << endl;
+                cout << "\tBook with the same ID already exists. Please enter a unique ID." << endl;
                 file.close();
                 return;
             }
         } catch (const std::invalid_argument&) {
-            cout << "Invalid ID found in the file. Please check the file format." << endl;
+            cout << endl;
+            cout << "\tInvalid ID found in the file. Please check the file format." << endl;
             file.close();
             return;
         }
     }
     file.close();
-    cout << "Book Title: ";
+    cout << "\tBook Title: ";
     cin.ignore();
     getline(cin, book.title);
-    cout << "Book Author: ";
+    cout << "\tBook Author: ";
     getline(cin, book.author);
-    cout << "Book Publisher: ";
+    cout << "\tBook Publisher: ";
     getline(cin, book.publisher);
-    cout << "Book Status: ";
+    cout << "\tBook Status: ";
     getline(cin, book.availability);
-    book.availability = toLower(book.availability); // Store the lowercase status
+    book.availability = toLower(book.availability);  // Store the lowercase status
     if (book.availability == "available") {
         bool status = true;
     } else if (book.availability == "unavailable") {
         bool status = false;
     } else {
-        cout << "Wrong input" << endl;
+        cout << "\tWrong input" << endl;
     }
     fout << book.id << token << book.title << token << book.author << token << book.publisher << token << book.availability << endl;
     fout.close();
@@ -191,13 +209,15 @@ void addBook() {
 void searchBook() {
     ifstream file(bookPath);
     if (!file.is_open()) {
-        cout << "Error opening file." << endl;
+        cout << endl;
+        cout << "\tError opening file." << endl;
         return;
     }
     vector<Book> book_infos;
     //    cin.ignore();
     string search;
-    cout << "Search (ID/Title/Author/Publisher): ";
+    cout << endl;
+    cout << "\tSearch (ID/Title/Author/Publisher): ";
     getline(cin, search);
     cout << endl;
     bool search_found = false;
@@ -214,10 +234,11 @@ void searchBook() {
     }
     file.close();
     if (!search_found) {
-        cout << "Book not found!" << endl;
+        cout << endl;
+        cout << "\tBook not found!" << endl;
     } else {
-
-        cout << "ID, Title, Author, Publisher" << endl;
+        cout << endl;
+        cout << "\tID, Title, Author, Publisher" << endl;
         for (const string& found_line : found_lines) {
             cout << found_line << endl;
         }
@@ -244,13 +265,14 @@ void updateBook(int search) {
 
     for (int i = 0; i < book_infos.size(); i++) {
         if (search == book_infos[i].id) {
-            cout << "Update Title: ";
+            cout << endl;
+            cout << "\tUpdate Title: ";
             getline(cin >> ws, book_infos[i].title);
-            cout << "Update Author: ";
+            cout << "\tUpdate Author: ";
             getline(cin >> ws, book_infos[i].author);
-            cout << "Update Publisher: ";
+            cout << "\tUpdate Publisher: ";
             getline(cin >> ws, book_infos[i].publisher);
-            cout << "Update Status: ";
+            cout << "\tUpdate Status: ";
             getline(cin >> ws, book_infos[i].availability);
             toLower(book_infos[i].availability);
             break;
@@ -295,11 +317,11 @@ void deleteBook(int search) {
 
     ofstream file(bookPath);
     for (const auto& hi : book_infos) {
-        file << hi.id << token
-             << hi.title << token
-             << hi.author << token
-             << hi.publisher << token
-             << hi.availability << '\n';
+        file << hi.id << "\t" << token
+             << hi.title << "\t" << token
+             << hi.author << "\t" << token
+             << hi.publisher << "\t" << token
+             << hi.availability << "\t" << '\n';
     }
     file.close();
 }
@@ -307,7 +329,8 @@ void deleteBook(int search) {
 void displayBooks() {
     ifstream file(bookPath);
     if (!file.is_open()) {
-        cout << "Error opening file." << endl;
+        cout << endl;
+        cout << "\tError opening file." << endl;
         return;
     }
     string line;
@@ -321,7 +344,8 @@ void addPatron() {
     Patron patron;
     fstream fout;
     fout.open(patronPath, ios::out | ios::app);
-    cout << "Patron ID: ";
+    cout << endl;
+    cout << "\tPatron ID: ";
     cin >> patron.id;
     ifstream file(patronPath);
     string line;
@@ -336,21 +360,23 @@ void addPatron() {
         // Add a check to verify if id is a valid integer
         try {
             if (stoi(id) == patron.id) {
-                cout << "Patron with the same ID already exists. Please enter a unique ID." << endl;
+                cout << endl;
+                cout << "\tPatron with the same ID already exists. Please enter a unique ID." << endl;
                 file.close();
                 return;
             }
         } catch (const std::invalid_argument&) {
-            cout << "Invalid ID found in the file. Please check the file format." << endl;
+            cout << endl;
+            cout << "\tInvalid ID found in the file. Please check the file format." << endl;
             file.close();
             return;
         }
     }
     file.close();
-    cout << "Patron Name: ";
+    cout << "\tPatron Name: ";
     cin.ignore();
     getline(cin, patron.name);
-    cout << "Contact Details: ";
+    cout << "\tContact Details: ";
     getline(cin, patron.contactDetails);
     fout << patron.id << token << patron.name << token << patron.contactDetails << endl;
     fout.close();
@@ -359,12 +385,14 @@ void addPatron() {
 void searchPatron() {
     ifstream file(patronPath);
     if (!file.is_open()) {
-        cout << "Error opening file." << endl;
+        cout << endl;
+        cout << "\tError opening file." << endl;
         return;
     }
     vector<Patron> patron_infos;
     string search;
-    cout << "Search (ID/Name): ";
+    cout << endl;
+    cout << "\tSearch (ID/Name): ";
     getline(cin, search);
     cout << endl;
     bool search_found = false;
@@ -381,11 +409,13 @@ void searchPatron() {
     }
     file.close();
     if (!search_found) {
-        cout << "Patron not found!" << endl;
+        cout << endl;
+        cout << "\tPatron not found!" << endl;
     } else {
-        cout << "ID, Name, Contact Details" << endl;
+        cout << endl;
+        cout << "\tID, Name, Contact Details" << endl;
         for (const string& found_line : found_lines) {
-            cout << found_line << endl;
+            cout << "\t" << found_line << endl;
         }
     }
 }
@@ -408,9 +438,11 @@ void updatePatron(int search) {
 
     for (int i = 0; i < patron_infos.size(); i++) {
         if (search == patron_infos[i].id) {
-            cout << "Update Name: ";
+            cout << endl;
+            cout << "\tUpdate Name: ";
             getline(cin >> ws, patron_infos[i].name);
-            cout << "Update Contact Details: ";
+            cout << endl;
+            cout << "\tUpdate Contact Details: ";
             getline(cin >> ws, patron_infos[i].contactDetails);
             break;
         }
@@ -460,7 +492,8 @@ void deletePatron(int search) {
 void displayPatrons() {
     ifstream file(patronPath);
     if (!file.is_open()) {
-        cout << "Error opening file." << endl;
+        cout << endl;
+        cout << "\tError opening file." << endl;
         return;
     }
     string line;
@@ -473,7 +506,8 @@ void displayPatrons() {
 void loadCheckOutRecords() {
     ifstream file(checkOutPath);
     if (!file.is_open()) {
-        cout << "No previous check-out records found." << endl;
+        cout << endl;
+        cout << "\tNo previous check-out records found." << endl;
         return;
     }
     checkOutRecords.clear();
@@ -502,7 +536,8 @@ void loadCheckOutRecords() {
 void saveCheckOutRecords() {
     ofstream file(checkOutPath);
     if (!file.is_open()) {
-        cout << "Error saving check-out records." << endl;
+        cout << endl;
+        cout << "\tError saving check-out records." << endl;
         return;
     }
     for (const CheckOutRecord& record : checkOutRecords) {
@@ -518,7 +553,8 @@ void saveCheckOutRecords() {
 void checkOutBook() {
     int patronID, bookID;
     time_t checkOutDate = time(nullptr);
-    cout << "Enter Patron ID: ";
+    cout << endl;
+    cout << "\tEnter Patron ID: ";
     cin >> patronID;
 
     // Check if the patron ID exists
@@ -531,11 +567,13 @@ void checkOutBook() {
     }
 
     if (!patronExists) {
-        cout << "Patron with ID " << patronID << " does not exist." << endl;
+        cout << endl;
+        cout << "\tPatron with ID " << patronID << " does not exist." << endl;
         return;
     }
 
-    cout << "Enter Book ID: ";
+    cout << endl;
+    cout << "\tEnter Book ID: ";
     cin >> bookID;
 
     // Check if the book ID exists
@@ -548,7 +586,8 @@ void checkOutBook() {
     }
 
     if (!bookExists) {
-        cout << "Book with ID " << bookID << " does not exist." << endl;
+        cout << endl;
+        cout << "\tBook with ID " << bookID << " does not exist." << endl;
         return;
     }
 
@@ -562,12 +601,13 @@ void checkOutBook() {
     }
 
     if (!bookAvailable) {
-        cout << "Book with ID " << bookID << " is not available for check-out." << endl;
+        cout << endl;
+        cout << "\tBook with ID " << bookID << " is not available for check-out." << endl;
         return;
     }
 
     // Calculate the due date (7 days from the check-out date)
-    time_t dueDate = checkOutDate + (7 * 24 * 60 * 60); // 7 days in seconds
+    time_t dueDate = checkOutDate + (7 * 24 * 60 * 60);  // 7 days in seconds
 
     // Add the check-out record to the checkOutRecords vector
     checkOutRecords.push_back({patronID, bookID, checkOutDate, dueDate, false});
@@ -583,13 +623,15 @@ void checkOutBook() {
     saveCheckOutRecords();
     saveBooksAndPatrons();
 
-    cout << "Book with ID " << bookID << " has been checked out by Patron with ID " << patronID << "." << endl;
+    cout << endl;
+    cout << "\tBook with ID " << bookID << " has been checked out by Patron with ID " << patronID << "." << endl;
 }
 
 void returnBook() {
     int patronID, bookID;
     time_t returnDate = time(nullptr);
-    cout << "Enter Patron ID: ";
+    cout << endl;
+    cout << "\tEnter Patron ID: ";
     cin >> patronID;
 
     // Check if the patron ID exists
@@ -602,11 +644,13 @@ void returnBook() {
     }
 
     if (!patronExists) {
-        cout << "Patron with ID " << patronID << " does not exist." << endl;
+        cout << endl;
+        cout << "\tPatron with ID " << patronID << " does not exist." << endl;
         return;
     }
 
-    cout << "Enter Book ID: ";
+    cout << endl;
+    cout << "\tEnter Book ID: ";
     cin >> bookID;
 
     // Check if the book ID exists
@@ -619,7 +663,8 @@ void returnBook() {
     }
 
     if (!bookExists) {
-        cout << "Book with ID " << bookID << " does not exist." << endl;
+        cout << endl;
+        cout << "\tBook with ID " << bookID << " does not exist." << endl;
         return;
     }
 
@@ -634,7 +679,8 @@ void returnBook() {
     }
 
     if (!bookFound) {
-        cout << "No active check-out record found for Patron with ID " << patronID << " and Book with ID " << bookID << "." << endl;
+        cout << endl;
+        cout << "\tNo active check-out record found for Patron with ID " << patronID << " and Book with ID " << bookID << "." << endl;
         return;
     }
 
@@ -649,11 +695,13 @@ void returnBook() {
     saveCheckOutRecords();
     saveBooksAndPatrons();
 
-    cout << "Book with ID " << bookID << " has been returned by Patron with ID " << patronID << "." << endl;
+    cout << endl;
+    cout << "\tBook with ID " << bookID << " has been returned by Patron with ID " << patronID << "." << endl;
 }
 void displayCheckOuts() {
-    cout << "Check-Out Records:" << endl;
-    cout << "Patron ID   Book ID   Check-Out Date       Due Date             Status" << endl;
+    cout << endl;
+    cout << "\tCheck-Out Records:" << endl;
+    cout << "\tPatron ID   Book ID   Check-Out Date       Due Date             Status" << endl;
     for (const CheckOutRecord& record : checkOutRecords) {
         cout << setw(11) << record.patronID;
         cout << setw(10) << record.bookID;
@@ -662,17 +710,18 @@ void displayCheckOuts() {
         cout << setw(21) << (record.returned ? "Returned" : "Not Returned") << endl;
     }
 }
-void manageBook(){
+void manageBook() {
     header();
     do {
-        cout << "What do you want to do?" << endl;
+        cout << endl;
+        cout << "\tMANAGE BOOKS\n";
         cout << "\t[1] Add a new book" << endl;
         cout << "\t[2] Search a book" << endl;
         cout << "\t[3] Update a book" << endl;
         cout << "\t[4] Delete a book" << endl;
         cout << "\t[5] Display all book" << endl;
         cout << "\t[6] Save and Exit" << endl;
-        cout << "\t >> ";
+        cout << "\t>> ";
         errValidation();
         switch (inputChoice) {
             case 1:
@@ -687,32 +736,37 @@ void manageBook(){
             case 3:
                 clearScreen();
                 int updateID;
-                cout << "Updating the list using the ID of the book: ";
+                cout << endl;
+                cout << "\tUpdating the list using the ID of the book: ";
                 cin >> updateID;
                 updateBook(updateID);
                 break;
             case 4:
                 clearScreen();
                 int deleteID;
-                cout << "Deleting the list using the ID of the book: ";
+                cout << endl;
+                cout << "\tDeleting the list using the ID of the book: ";
                 cin >> deleteID;
                 deleteBook(deleteID);
                 break;
             case 5:
                 clearScreen();
-                for(int i = 0; i < headers.size(); i++){
+                for (int i = 0; i < headers.size(); i++) {
                     cout << headers[i] << token;
-                }cout << endl;
+                }
+                cout << endl;
                 displayBooks();
                 break;
         }
-    }while(inputChoice != 6);
-    cout << "Saving and Exiting!!" << endl;
+    } while (inputChoice != 6);
+    cout << endl;
+    cout << "\tSaving and Exiting!!" << endl;
 }
-void managePatron(){
+void managePatron() {
     header();
     do {
-        cout << "What do you want to do?" << endl;
+        cout << endl;
+        cout << "\tOPTIONS" << endl;
         cout << "\t[1] Add a new patron" << endl;
         cout << "\t[2] Search for a patron" << endl;
         cout << "\t[3] Update a patron" << endl;
@@ -734,14 +788,16 @@ void managePatron(){
             case 3:
                 clearScreen();
                 int updatePatronID;
-                cout << "Updating the patron using the ID: ";
+                cout << endl;
+                cout << "\tUpdating the patron using the ID: ";
                 cin >> updatePatronID;
                 updatePatron(updatePatronID);
                 break;
             case 4:
                 clearScreen();
                 int deletePatronID;
-                cout << "Deleting the patron using the ID: ";
+                cout << endl;
+                cout << "\tDeleting the patron using the ID: ";
                 cin >> deletePatronID;
                 deletePatron(deletePatronID);
                 break;
@@ -751,12 +807,14 @@ void managePatron(){
                 break;
         }
     } while (inputChoice != 6);
-    cout << "Saving and Exiting!!" << endl;
+    cout << endl;
+    cout << "\tSaving and Exiting!!" << endl;
 }
-void manageCheckout(){
+void manageCheckout() {
     clearScreen();
     do {
-        cout << "What do you want to do with Check-outs and Returns?" << endl;
+        cout << endl;
+        cout << "\tCHECKOUTS & RETURNS" << endl;
         cout << "\t[1] Check-out a book" << endl;
         cout << "\t[2] Return a book" << endl;
         cout << "\t[3] Display all check-outs" << endl;
@@ -781,35 +839,39 @@ void manageCheckout(){
 }
 
 int main() {
-    loadBooksAndPatrons();
-    loadCheckOutRecords();
     header();
     while (true) {
         clearScreen();
-        cout << "MAIN MENU" << endl;
-        cout << "1. Manage Books" << endl;
-        cout << "2. Manage Patrons" << endl;
-        cout << "3. Manage Check Out/Return" << endl;
-        cout << "4. Exit" << endl;
-        cout << "Enter your choice: ";
+        cout << endl;
+        cout << "\tMAIN MENU" << endl;
+        cout << "\t[1] Manage Books" << endl;
+        cout << "\t[2] Manage Patrons" << endl;
+        cout << "\t[3] Manage Check Out/Return" << endl;
+        cout << "\t[4] Exit" << endl;
+        cout << "\t>> ";
         errValidation();
+        clearScreen();
         switch (inputChoice) {
             case 1:
                 manageBook();
+                loadBooksAndPatrons();
                 break;
             case 2:
                 managePatron();
                 break;
             case 3:
                 manageCheckout();
+                loadCheckOutRecords();
                 break;
             case 4:
                 saveBooksAndPatrons();
                 saveCheckOutRecords();
-                cout << "Thank you for using the Library Management System. Goodbye!" << endl;
+                cout << endl;
+                cout << "\tThank you for using the Library Management System. Goodbye!" << endl;
                 return 0;
             default:
-                cout << "Invalid choice. Please try again." << endl;
+                cout << endl;
+                cout << "\tInvalid choice. Please try again." << endl;
                 break;
         }
     }
