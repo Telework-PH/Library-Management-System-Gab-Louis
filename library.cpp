@@ -1,12 +1,12 @@
-#include <iostream>
-#include <iomanip>
-#include <vector>
+#include <algorithm>
+#include <climits>
+#include <ctime>
 #include <fstream>
+#include <iomanip>
+#include <iostream>
 #include <string>
 #include <strstream>
-#include <algorithm>
-#include <ctime>
-
+#include <vector>
 
 using namespace std;
 int inputChoice;
@@ -14,7 +14,6 @@ string bookPath = "book.csv";
 string patronPath = "patron.csv";
 const int maxrow = 10;
 char token = ',';
-
 
 vector<string> headers = {"BOOK ID", "TITLE", "AUTHOR", "PUBLISHER", "STATUS"};
 
@@ -104,26 +103,26 @@ void addBook() {
     getline(cin, book.publisher);
     cout << "Book Status: ";
     getline(cin, book.availability);
-    book.availability = toLower(book.availability); // Store the lowercase status
-    if (book.availability == "available"){
+    book.availability = toLower(book.availability);  // Store the lowercase status
+    if (book.availability == "available") {
         bool status = true;
-    } else if(book.availability == "unavailable"){
+    } else if (book.availability == "unavailable") {
         bool status = false;
-    }else{
+    } else {
         cout << "Wrong input" << endl;
     }
     fout << book.id << token << book.title << token << book.author << token << book.publisher << token << book.availability << endl;
     fout.close();
 }
 
-void searchBook(){
+void searchBook() {
     ifstream file(bookPath);
     if (!file.is_open()) {
         cout << "Error opening file." << endl;
         return;
     }
-    vector<Book>book_infos;
-//    cin.ignore();
+    vector<Book> book_infos;
+    //    cin.ignore();
     string search;
     cout << "Search (ID/Title/Author/Publisher): ";
     getline(cin, search);
@@ -131,7 +130,7 @@ void searchBook(){
     bool search_found = false;
     string line;
     string lowerTitleToFind = toLower(search);
-    vector<string>found_lines;
+    vector<string> found_lines;
     while (getline(file, line)) {
         string lowerLine = toLower(line);
         size_t found = lowerLine.find(lowerTitleToFind);
@@ -144,12 +143,10 @@ void searchBook(){
     if (!search_found) {
         cout << "Book not found!" << endl;
     } else {
-
         cout << "ID, Title, Author, Publisher" << endl;
         for (const string& found_line : found_lines) {
             cout << found_line << endl;
         }
-
     }
 }
 
@@ -195,7 +192,6 @@ void updateBook(int search) {
              << hi.availability << '\n';
         file.close();
     }
-
 }
 
 void deleteBook(int search) {
@@ -213,7 +209,7 @@ void deleteBook(int search) {
         getline(iss, author, token);
         getline(iss, publisher, token);
         getline(iss, availability);
-        book_infos.push_back({ stoi(id), title, author, publisher, availability });
+        book_infos.push_back({stoi(id), title, author, publisher, availability});
     }
 
     for (size_t i = 0; i < book_infos.size(); i++) {
@@ -232,7 +228,6 @@ void deleteBook(int search) {
              << hi.availability << '\n';
         file.close();
     }
-
 }
 
 void displayBooks() {
@@ -422,11 +417,12 @@ void checkOutBook() {
                 time_t now = time(0);
                 time_t dueDate = now + (7 * 24 * 60 * 60);
 
-                CheckOutRecord checkOutRecord = { patronID, bookID, now, dueDate, false };
+                CheckOutRecord checkOutRecord = {patronID, bookID, now, dueDate, false};
                 checkOutRecords.push_back(checkOutRecord);
 
-                book.availability = "unavailable";
-                cout << "Book successfully checked out. Due date: " << ctime(&dueDate) << endl;
+                if (book.availability == "unavailable") {
+                    cout << "Book successfully checked out. Due date: " << ctime(&dueDate) << endl;
+                }
             } else {
                 cout << "Book is currently unavailable for check-out." << endl;
             }
@@ -467,7 +463,7 @@ void returnBook() {
             double secondsLate = difftime(now, checkOutRecord.dueDate);
             if (secondsLate > 0) {
                 double daysLate = secondsLate / (24 * 60 * 60);
-                double fine = daysLate * 0.50; // $0.50 per day late
+                double fine = daysLate * 0.50;  // $0.50 per day late
                 cout << "Book returned late. Fine: $" << fixed << setprecision(2) << fine << endl;
             } else {
                 cout << "Book returned on time. No fine." << endl;
@@ -481,7 +477,6 @@ void returnBook() {
     }
 }
 
-
 void displayCheckOuts() {
     vector<CheckOutRecord> checkOutRecords;
     cout << "Check-Out Records:" << endl;
@@ -494,7 +489,7 @@ void displayCheckOuts() {
         cout << setw(21) << (checkOutRecord.returned ? "Returned" : "Not Returned") << endl;
     }
 }
-void manageBook(){
+void manageBook() {
     header();
     do {
         cout << "What do you want to do?" << endl;
@@ -532,16 +527,17 @@ void manageBook(){
                 break;
             case 5:
                 clearScreen();
-                for(int i = 0; i < headers.size(); i++){
+                for (int i = 0; i < headers.size(); i++) {
                     cout << headers[i] << token;
-                }cout << endl;
+                }
+                cout << endl;
                 displayBooks();
                 break;
         }
-    }while(inputChoice != 6);
+    } while (inputChoice != 6);
     cout << "Saving and Exiting!!" << endl;
 }
-void managePatron(){
+void managePatron() {
     header();
     do {
         cout << "What do you want to do?" << endl;
@@ -585,7 +581,7 @@ void managePatron(){
     } while (inputChoice != 6);
     cout << "Saving and Exiting!!" << endl;
 }
-void manageCheckout(){
+void manageCheckout() {
     clearScreen();
     do {
         cout << "What do you want to do with Check-outs and Returns?" << endl;
